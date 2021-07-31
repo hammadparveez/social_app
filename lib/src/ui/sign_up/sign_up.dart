@@ -1,4 +1,5 @@
 import 'package:social_app/src/export.dart';
+import 'package:social_app/src/riverpods/register_pod.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -46,13 +47,19 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  TextButton _buildTextButton() =>  TextButton(onPressed: () => Get.toNamed(Routes.login), child: const Text(Strings.alreadyHaveAccount));
+  TextButton _buildTextButton() => TextButton(
+      onPressed: () => Get.toNamed(Routes.login),
+      child: const Text(Strings.alreadyHaveAccount));
 
   ElevatedButton _buildSignUpButton() {
     return ElevatedButton(
-        onPressed: () {},
-        child: const Text(Strings.signUp),
-      );
+      onPressed: () {
+        context
+            .read(registerUserPod)
+            .registerUser("Mason", "hammadpervez2@gmail.com", "123455");
+      },
+      child: const Text(Strings.signUp),
+    );
   }
 
   CustomTextField _formField(
