@@ -7,11 +7,14 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Form(
-        child: Column(
-          children: [
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          child: Column(
+            children: [
 
-          ],
+            ],
+          ),
         ),
       ),
     );

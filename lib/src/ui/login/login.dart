@@ -1,5 +1,4 @@
 import 'package:social_app/src/export.dart';
-import 'package:social_app/src/ui/login/export.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -18,14 +17,26 @@ class _LoginState extends State<Login> {
     return Scaffold(
       body: Form(
         key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildEmailField(),
-            _buildPasswordField(),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: _buildLoginForm(),
         ),
       ),
+    );
+  }
+
+  Column _buildLoginForm() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildEmailField(),
+        _buildPasswordField(),
+        SizedBox(height: 50.sp),
+        ElevatedButton(
+          onPressed: () {},
+          child: Text(Strings.signIn),
+        ),
+      ],
     );
   }
 

@@ -10,8 +10,10 @@ class Routes {
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      default:
+      case Routes.login:
         return GetPageRoute(page: () => Login());
+      default:
+        return GetPageRoute(page: () => SignUp());
     }
   }
 }
