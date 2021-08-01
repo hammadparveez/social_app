@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:social_app/src/export.dart';
 import 'package:social_app/src/riverpods/register_pod.dart';
 
@@ -16,16 +19,11 @@ class _SignUpState extends State<SignUp> {
       _confirmPasswordController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: _buildLoginForm(),
-        ),
-      ),
-    );
+  initState() {
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      _createDynamicLink();
+    });
   }
 
   Column _buildLoginForm() {
@@ -40,24 +38,53 @@ class _SignUpState extends State<SignUp> {
         _formField(_passwordController, Strings.enterPass),
         //Confirm Password
         _formField(_confirmPasswordController, Strings.enterConfirmPass),
-
         _buildSignUpButton(),
-        _buildTextButton()
+        _buildHaveAccountBtn()
       ],
     );
   }
 
-  TextButton _buildTextButton() => TextButton(
+  TextButton _buildHaveAccountBtn() => TextButton(
       onPressed: () => Get.toNamed(Routes.login),
       child: const Text(Strings.alreadyHaveAccount));
 
+  void _createDynamicLink() async {
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: 'https://hsbiz.page.link',
+      link: Uri.parse('https://exclusiveinn.com'),
+      androidParameters: AndroidParameters(
+        packageName: 'com.example.social_app',
+        minimumVersion: 1,
+      ),
+      iosParameters: IosParameters(
+        bundleId: 'com.example.social_app',
+        minimumVersion: '1',
+        appStoreId: '123',
+      ),
+    );
+
+    var dynamicUrl = await parameters.buildShortLink();
+    final shortUrl = dynamicUrl.shortUrl;
+    log("Short Ur:: ${shortUrl}");
+    final PendingDynamicLinkData? data =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    log("Link : $data");
+  }
+
+  void _signUp() async {
+    final registerPod = context.read(registerUserPod);
+
+    //await context.read(loginPod).login("hammadpervez6@gmail.com");
+    //showAlertDialog(context, CircularProgressIndicator());
+    //bool isRegistered = await registerPod.registerUser(_userNameController.text,
+    //   _emailController.text, _passwordController.text);
+    //Get.back();
+    //if (isRegistered) Get.toNamed(Routes.home);
+  }
+
   ElevatedButton _buildSignUpButton() {
     return ElevatedButton(
-      onPressed: () {
-        context
-            .read(registerUserPod)
-            .registerUser("Mason", "hammadpervez2@gmail.com", "123455");
-      },
+      onPressed: _signUp,
       child: const Text(Strings.signUp),
     );
   }
@@ -67,6 +94,19 @@ class _SignUpState extends State<SignUp> {
     return CustomTextField(
       controller: controller,
       hintText: hintText,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: _buildLoginForm(),
+        ),
+      ),
     );
   }
 }

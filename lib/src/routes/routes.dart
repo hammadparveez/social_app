@@ -12,6 +12,8 @@ class Routes {
     switch (settings.name) {
       case Routes.login:
         return GetPageRoute(page: () => Login());
+      case Routes.home:
+        return GetPageRoute(page: () => Home());
       default:
         return GetPageRoute(page: () => SignUp());
     }

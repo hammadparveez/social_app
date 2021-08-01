@@ -55,6 +55,8 @@ dependencies:
   firebase: ^9.0.1
   #Firestore
   cloud_firestore: ^2.4.0
+  #Firebase Email Link Authentication
+  firebase_dynamic_links: ^2.0.7
 
 dev_dependencies:
   flutter_test:
