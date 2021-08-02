@@ -65,7 +65,7 @@ class _SignUpState extends State<SignUp> {
 
     var dynamicUrl = await parameters.buildShortLink();
     final shortUrl = dynamicUrl.shortUrl;
-    log("Short Ur:: ${shortUrl}");
+    log("Short Ur:: ${shortUrl}     and ${shortUrl.toString()}");
     final PendingDynamicLinkData? data =
         await FirebaseDynamicLinks.instance.getInitialLink();
     log("Link : $data");
@@ -73,6 +73,17 @@ class _SignUpState extends State<SignUp> {
 
   void _signUp() async {
     final registerPod = context.read(registerUserPod);
+    final auth = FirebaseAuth.instance;
+    final actionCodes = ActionCodeSettings(
+        url: "https://www.exclusiveinn.com",
+        handleCodeInApp: true,
+        androidPackageName: 'com.example.social_app');
+    try {
+      await auth.sendSignInLinkToEmail(
+          email: "hammadpervez6@gmail.com", actionCodeSettings: actionCodes);
+    } catch (e) {
+      log("Error ${e}");
+    }
 
     //await context.read(loginPod).login("hammadpervez6@gmail.com");
     //showAlertDialog(context, CircularProgressIndicator());
