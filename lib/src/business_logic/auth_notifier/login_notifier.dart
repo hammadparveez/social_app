@@ -1,13 +1,11 @@
 import 'package:social_app/src/export.dart';
-import 'package:social_app/src/model/email_link_model.dart';
-
-
+import 'package:social_app/src/model/repository/email_link_repo.dart';
 
 class LoginNotifier extends ChangeNotifier {
-  final loginModel = EmailLinkAuthModel();
+  final emailLinkRepo = EmailLinkRepository();
 
-  Future<void> login(String email) async {
-    await loginModel.login(email);
-  }
+  Future<void> attachDynamicLinkGenerate() =>
+      emailLinkRepo.attachDynamicLinkListener();
 
+  Future<void> login(String email) async {}
 }

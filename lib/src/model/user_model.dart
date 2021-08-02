@@ -12,7 +12,7 @@ class UserModelImpl extends UserModel {
   Future<bool> createUsers(
       String userName, String email, String password) async {
     final _collection =
-        _fireBaseInstance.collection(FirebaseCollectionStrings.users);
+        _fireBaseInstance.collection(ModelString.usersCollection);
 
     final documentRef = await _collection.add(
         UserEntity(userName: userName, email: email, password: password)

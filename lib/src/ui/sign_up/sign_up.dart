@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:social_app/src/export.dart';
+import 'package:social_app/src/riverpods/login_pod.dart';
 import 'package:social_app/src/riverpods/register_pod.dart';
 
 class SignUp extends StatefulWidget {
@@ -22,7 +23,7 @@ class _SignUpState extends State<SignUp> {
   initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      _createDynamicLink();
+     context.read(loginPod).attachDynamicLinkGenerate();
     });
   }
 
@@ -48,42 +49,12 @@ class _SignUpState extends State<SignUp> {
       onPressed: () => Get.toNamed(Routes.login),
       child: const Text(Strings.alreadyHaveAccount));
 
-  void _createDynamicLink() async {
-    final DynamicLinkParameters parameters = DynamicLinkParameters(
-      uriPrefix: 'https://hsbiz.page.link',
-      link: Uri.parse('https://exclusiveinn.com'),
-      androidParameters: AndroidParameters(
-        packageName: 'com.example.social_app',
-        minimumVersion: 1,
-      ),
-      iosParameters: IosParameters(
-        bundleId: 'com.example.social_app',
-        minimumVersion: '1',
-        appStoreId: '123',
-      ),
-    );
-
-    var dynamicUrl = await parameters.buildShortLink();
-    final shortUrl = dynamicUrl.shortUrl;
-    log("Short Ur:: ${shortUrl}     and ${shortUrl.toString()}");
-    final PendingDynamicLinkData? data =
-        await FirebaseDynamicLinks.instance.getInitialLink();
-    log("Link : $data");
-  }
-
   void _signUp() async {
     final registerPod = context.read(registerUserPod);
-    final auth = FirebaseAuth.instance;
-    final actionCodes = ActionCodeSettings(
-        url: "https://www.exclusiveinn.com",
-        handleCodeInApp: true,
-        androidPackageName: 'com.example.social_app');
-    try {
-      await auth.sendSignInLinkToEmail(
-          email: "hammadpervez6@gmail.com", actionCodeSettings: actionCodes);
-    } catch (e) {
-      log("Error ${e}");
-    }
+    //final auth = FirebaseAuth.instance;
+    //final x = auth.isSignInWithEmailLink("https://www.exclusiveinn.com");
+    //log("Sign-In ${x}");
+    //_createDynamicLink();
 
     //await context.read(loginPod).login("hammadpervez6@gmail.com");
     //showAlertDialog(context, CircularProgressIndicator());
