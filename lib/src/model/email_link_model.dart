@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:social_app/src/export.dart';
 import 'package:social_app/src/model/dynamic_link_model.dart';
+import 'package:social_app/src/model/entites/email_link_entity.dart';
 import 'package:social_app/src/model/model_constants.dart';
 
 abstract class LoginModel {
@@ -67,13 +68,15 @@ class EmailLinkModelImpl implements EmailLinkModel, LoginModel {
   //Creating User when Dynamic Link is successfully Linked
   Future<dynamic> _onSuccess(
       PendingDynamicLinkData? linkData, String email) async {
+    isLoggedIn = false;
     final isValidLink = isSignInEmailLink("${linkData?.link.toString()}");
-    log("On Success ");
     if (isValidLink) {
       final credentials = await firebaseAuth.signInWithEmailLink(
           email: email, emailLink: linkData!.link.toString());
       final doc = await fireStore.collection(ModelString.usersCollection).add(
-          {"email": credentials.user!.email, "token": credentials.user!.uid});
+            EmailLinkEntity(credentials.user!.email!, credentials.user!.uid)
+                .toMap(),
+          );
       final snapshot = await doc.get();
       if (snapshot.exists) isLoggedIn = true;
       isLoggedIn = false;

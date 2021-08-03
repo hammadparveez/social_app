@@ -9,16 +9,24 @@ class Home extends StatelessWidget {
     return AuthCheckWidget(
       notLoggedInWidget: SignUp(),
       loggedInWidget: Scaffold(
+        floatingActionButton:
+            FloatingActionButton(onPressed: () {}, child: Icon(Icons.add)),
+        appBar: AppBar(
+          actions: [
+            ElevatedButton.icon(
+                onPressed: () {
+                  context.read(loginPod).logOut();
+                },
+                icon: Icon(Icons.logout),
+                label: Text(Strings.signOut)),
+          ],
+        ),
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                    child: Text("Sign Out"),
-                    onPressed: () => context.read(loginPod).logOut()),
-              ],
+              children: [],
             ),
           ),
         ),

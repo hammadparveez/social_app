@@ -6,5 +6,6 @@ class Strings {
   static const enterConfirmPass = "Enter Confirm Password";
   static const signIn = "Sign In";
   static const signUp = "Sign Up";
+  static const signOut = "Sign Out";
   static const alreadyHaveAccount = "Already have an Account?";
 }

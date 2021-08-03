@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:social_app/src/model/model_constants.dart';
 
+
+
 abstract class DynamicLinkModel {
   final dynamicLink = FirebaseDynamicLinks.instance;
   //Returns with Shorten URL
@@ -43,8 +45,8 @@ class DynamicLinkGenerator extends DynamicLinkModel {
 
   @override
   void attachListenerOnLinkGenerate(
-      Future<dynamic> Function(PendingDynamicLinkData? linkData) onSuccess,
-      Future<dynamic> Function(OnLinkErrorException? error) onError) {
+      OnLinkSuccessCallback onSuccess,
+      OnLinkErrorCallback  onError) {
     dynamicLink.onLink(onSuccess: onSuccess, onError: onError);
   }
 }
