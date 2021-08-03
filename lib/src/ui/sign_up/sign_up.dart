@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:social_app/src/export.dart';
 import 'package:social_app/src/riverpods/login_pod.dart';
 import 'package:social_app/src/riverpods/register_pod.dart';
@@ -22,9 +19,7 @@ class _SignUpState extends State<SignUp> {
   @override
   initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-     context.read(loginPod).attachDynamicLinkGenerate();
-    });
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {});
   }
 
   Column _buildLoginForm() {
@@ -51,17 +46,9 @@ class _SignUpState extends State<SignUp> {
 
   void _signUp() async {
     final registerPod = context.read(registerUserPod);
-    //final auth = FirebaseAuth.instance;
-    //final x = auth.isSignInWithEmailLink("https://www.exclusiveinn.com");
-    //log("Sign-In ${x}");
-    //_createDynamicLink();
 
-    //await context.read(loginPod).login("hammadpervez6@gmail.com");
-    //showAlertDialog(context, CircularProgressIndicator());
-    //bool isRegistered = await registerPod.registerUser(_userNameController.text,
-    //   _emailController.text, _passwordController.text);
-    //Get.back();
-    //if (isRegistered) Get.toNamed(Routes.home);
+    //context.read(loginPod).logOut();
+    context.read(loginPod).login("hammadpervez6@gmail.com");
   }
 
   ElevatedButton _buildSignUpButton() {
@@ -81,13 +68,13 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: _buildLoginForm(),
-        ),
+    return AuthCheckWidget(
+      loggedInWidget: Home(),
+      notLoggedInWidget: Scaffold(
+        body: Form(
+            key: _formKey,
+            child: Padding(
+                padding: const EdgeInsets.all(20), child: _buildLoginForm())),
       ),
     );
   }

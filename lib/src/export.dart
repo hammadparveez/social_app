@@ -7,6 +7,7 @@ export 'package:flutter_riverpod/flutter_riverpod.dart';
 export 'package:flutter_screenutil/flutter_screenutil.dart';
 export 'package:get/get.dart';
 export 'package:social_app/src/ui/app/app.dart';
+export 'package:social_app/src/ui/base_components/auth_check.dart';
 ///
 export 'package:social_app/src/ui/base_components/text_field.dart';
 ///UI

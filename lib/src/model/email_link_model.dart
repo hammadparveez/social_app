@@ -1,67 +1,102 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:social_app/src/export.dart';
+import 'package:social_app/src/model/dynamic_link_model.dart';
 import 'package:social_app/src/model/model_constants.dart';
 
 abstract class LoginModel {
   Future login(String email, [String password]);
+  Future<bool> signOut();
 }
 
-class EmailLinkAuthModel extends LoginModel {
-  final firebaseDynamic = FirebaseDynamicLinks.instance;
+abstract class EmailLinkModel {
+  bool isSignInEmailLink(String emailLink);
+  signInWithEmailLink(String email, String emailLink);
+}
+
+class EmailLinkModelImpl implements EmailLinkModel, LoginModel {
   final firebaseAuth = FirebaseAuth.instance;
-
-  void createDynamicLink() {
-    final DynamicLinkParameters parameters = DynamicLinkParameters(
-      uriPrefix: ModelString.dynamicLinkHTTPS,
-      link: Uri.parse(ModelString.baseUri),
-      androidParameters: AndroidParameters(
-        packageName: ModelString.pkgName,
-        minimumVersion: ModelString.dynamicAndroidVersion,
-      ),
-      iosParameters: IosParameters(
-        bundleId: ModelString.pkgName,
-        minimumVersion: '${ModelString.dynamicAppleVersion}',
-        appStoreId: '123',
-      ),
-    );
-    _shortenDynamicLink(parameters);
-  }
-
-  bool isEmailSignInLink(String emailLink) {
-    final isLoginAble = firebaseAuth.isSignInWithEmailLink(emailLink);
-    if (isLoginAble) return true;
-    return false;
-  }
-
-  Future<Uri> _shortenDynamicLink(DynamicLinkParameters parameters) async {
-    var dynamicUrl = await parameters.buildShortLink();
-    final shortUrl = dynamicUrl.shortUrl;
-    final PendingDynamicLinkData? data =
-        await FirebaseDynamicLinks.instance.getInitialLink();
-    return shortUrl;
-  }
-
-  void attachListenerOnLinkGenerate(
-      Future<dynamic> Function(PendingDynamicLinkData?) onSuccess,
-      Future<dynamic> Function(OnLinkErrorException?) onError) {
-    firebaseDynamic.onLink(onSuccess: onSuccess, onError: onError);
-  }
+  final fireStore = FirebaseFirestore.instance;
+  final DynamicLinkGenerator dynamicLinkGenerator;
+  bool isLoggedIn = false;
+  EmailLinkModelImpl(this.dynamicLinkGenerator);
 
   @override
   Future login(String email, [String? password]) async {
-    final auth = FirebaseAuth.instance;
-
     final actionCodes = ActionCodeSettings(
         url: ModelString.baseUri,
         handleCodeInApp: true,
         androidPackageName: ModelString.pkgName);
     try {
-      await auth.sendSignInLinkToEmail(
+      await firebaseAuth.sendSignInLinkToEmail(
           email: email, actionCodeSettings: actionCodes);
     } catch (e) {
       log("Error ${e}");
     }
+  }
+
+  @override
+  Future<bool> signOut() async {
+    await firebaseAuth.signOut();
+    if (firebaseAuth.currentUser == null) return true;
+    return false;
+  }
+
+  @override
+  bool isSignInEmailLink(String emailLink) {
+    return firebaseAuth.isSignInWithEmailLink(emailLink);
+  }
+
+  @override
+  Future<bool> signInWithEmailLink(String email, [String? emailLink]) async {
+    final userExists = await _checkUserExists(email);
+    log("User Exists: $userExists");
+    if (userExists)
+      isLoggedIn = true;
+    else {
+      await login(email);
+      dynamicLinkGenerator.attachListenerOnLinkGenerate(
+          (PendingDynamicLinkData? linkData) => _onSuccess(linkData, email),
+          _onError);
+    }
+    return isLoggedIn;
+  }
+
+  //Creating User when Dynamic Link is successfully Linked
+  Future<dynamic> _onSuccess(
+      PendingDynamicLinkData? linkData, String email) async {
+    final isValidLink = isSignInEmailLink("${linkData?.link.toString()}");
+    log("On Success ");
+    if (isValidLink) {
+      final credentials = await firebaseAuth.signInWithEmailLink(
+          email: email, emailLink: linkData!.link.toString());
+      final doc = await fireStore.collection(ModelString.usersCollection).add(
+          {"email": credentials.user!.email, "token": credentials.user!.uid});
+      final snapshot = await doc.get();
+      if (snapshot.exists) isLoggedIn = true;
+      isLoggedIn = false;
+    }
+    throw Exception("Unable to create User");
+  }
+
+  Future<dynamic> _onError(OnLinkErrorException? error) async {
+    log("Error With Dynamic Link");
+  }
+
+  Future<bool> _checkUserExists(String email) async {
+    final query = fireStore
+        .collection(ModelString.usersCollection)
+        .where("email", isEqualTo: email);
+    final docs = await query.get();
+    log("Doc: ${docs.docs.isEmpty}}");
+    if (docs.docs.isNotEmpty) {
+      try {
+        docs.docs.firstWhere((element) => element.data()["email"] == email);
+        return true;
+      } catch (e) {}
+    }
+    return false;
   }
 }
