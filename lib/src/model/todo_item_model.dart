@@ -1,32 +1,45 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:social_app/src/model/entites/todo_entity.dart';
+import 'package:social_app/src/model/firebase_models.dart';
 import 'package:social_app/src/model/model_constants.dart';
 
 class TodoItemModel {
   final fireStore = FirebaseFirestore.instance;
-  CollectionReference? _todoCollection;
-  Future addToDoCollection(String email) async {
-    final snapshot = await fireStore
-        .collection(ModelString.usersCollection)
-        .where("email", isEqualTo: email)
-        .get();
+  GetCollectionFirebase _todoCollectionFirebase = GetTodoCollectionFirebase();
 
-    for (int i = 0; i < snapshot.docs.length; i++) {
-      final el = snapshot.docs[i];
-      _todoCollection = fireStore
-          .collection(ModelString.usersCollection)
-          .doc(el.id)
-          .collection(ModelString.toDoCollection);
-      break;
+  CollectionReference? _todoCollection;
+
+  Future<TodoEntity?> addItem(String email, String content,
+      [int? timeStamp]) async {
+    _todoCollection = await _todoCollectionFirebase.getCollection(
+        email, ModelString.toDoCollection);
+    if (_todoCollection != null) {
+      final docRef = await _todoCollection!.add(TodoEntity(
+              content, timeStamp ?? DateTime.now().millisecondsSinceEpoch)
+          .toMap());
+      final snapshot = await docRef.get();
+      log("Snapshot: ${snapshot}");
+      if (snapshot.exists)
+        return TodoEntity.toJson(snapshot.data()! as Map<String, dynamic>);
+      return null;
+    } else {
+      log("Could not find Todo Collection");
     }
   }
 
-  Future addItem(String content) async {
+  Future<List<TodoEntity?>> getAllItems(String email) async {
+    _todoCollection = await _todoCollectionFirebase.getCollection(
+        email, ModelString.toDoCollection);
+
     if (_todoCollection != null) {
-      final docRef =
-          await _todoCollection!.add({"content": content, "created": DateTime.now().millisecondsSinceEpoch});
-      log("Item Added ${docRef}");
+      final docs = await _todoCollection!.get();
+      final items = docs.docs
+          .map((e) => TodoEntity.toJson(e.data() as Map<String, dynamic>))
+          .toList();
+      return items;
     }
+    return [];
   }
 }
