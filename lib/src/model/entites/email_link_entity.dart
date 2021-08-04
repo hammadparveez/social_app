@@ -10,7 +10,7 @@ class EmailLinkEntity {
     };
   }
 
-  EmailLinkEntity toJson(Map json) {
+  static EmailLinkEntity toJson(Map<String, dynamic> json) {
     return EmailLinkEntity(json["email"], json["token"]);
   }
 }

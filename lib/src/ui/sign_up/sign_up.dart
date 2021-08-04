@@ -1,6 +1,4 @@
 import 'package:social_app/src/export.dart';
-import 'package:social_app/src/riverpods/login_pod.dart';
-import 'package:social_app/src/riverpods/register_pod.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -44,12 +42,7 @@ class _SignUpState extends State<SignUp> {
       onPressed: () => Get.toNamed(Routes.login),
       child: const Text(Strings.alreadyHaveAccount));
 
-  void _signUp() async {
-    final registerPod = context.read(registerUserPod);
-
-    //context.read(loginPod).logOut();
-    context.read(loginPod).login("hammadpervez6@gmail.com");
-  }
+  void _signUp() async {}
 
   ElevatedButton _buildSignUpButton() {
     return ElevatedButton(

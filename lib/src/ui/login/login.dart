@@ -14,43 +14,25 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: _buildLoginForm(),
+    return AuthCheckWidget(
+      loggedInWidget: const Home(),
+      notLoggedInWidget: Scaffold(
+        body: Center(
+          child: ElevatedButton(
+            onPressed: _onLogin,
+            child: Text(Strings.signIn),
+          ),
         ),
       ),
     );
   }
 
-  Column _buildLoginForm() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildEmailField(),
-        _buildPasswordField(),
-        SizedBox(height: 50.sp),
-        ElevatedButton(
-          onPressed: () {},
-          child: Text(Strings.signIn),
-        ),
-      ],
-    );
-  }
-
-  CustomTextField _buildPasswordField() {
-    return CustomTextField(
-      controller: _passwordController,
-      hintText: Strings.enterPass,
-    );
-  }
-
-  CustomTextField _buildEmailField() {
-    return CustomTextField(
-      controller: _emailController,
-      hintText: Strings.enterEmail,
-    );
+  _onLogin() {
+    context.read(loginPod).login("hammadpervez6@gmail.com");
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+          "Sign In Email Link has been sent, Please Check your Inbox! if you haven't, Tap again"),
+      duration: Duration(seconds: 5),
+    ));
   }
 }
